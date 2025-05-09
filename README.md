@@ -1,106 +1,39 @@
-# Proxmox PaaS Deployment
+The Proxmox PaaS project has been significantly enhanced with new features and improvements. This document outlines the key changes and provides guidance for deployment and usage.
 
-This directory contains the deployment-ready version of the Proxmox PaaS system.
+**Key Features & Enhancements:**
 
-## Backend Deployment
+1.  **Proxmox API Integration:** The system now interacts directly with your Proxmox VE server using the provided API details. This replaces any mock data or simulated interactions with real-time data and control over your Proxmox environment.
+2.  **VM and LXC Creation:** Users can now create VMs and LXC containers directly from the platform. The system supports creation from available templates and ISOs, providing flexibility in provisioning new instances.
+3.  **Cost Computation System:** A basic cost computation system has been implemented. It estimates costs based on resource allocation (CPU, memory, disk) according to a configurable pricing model. The pricing configuration can be found in `backend/config/pricing.js`.
+4.  **Prepaid Credit System:** Users operate on a prepaid credit basis. They can add funds to their accounts, and resource usage will be deducted from their credit balance. The system includes logic for monthly free credit allocation.
+5.  **Payment Gateway Integration (Simulated):** The framework for integrating payment gateways like PayPal and cryptocurrency platforms (e.g., Crypto.com) has been established. While the actual payment processing is simulated, the backend logic for handling transactions and updating user credits is in place. You can replace the placeholder services in `backend/src/services/paypalService.js` and `backend/src/services/cryptoPaymentService.js` with actual SDK integrations for live payment processing.
+6.  **Enhanced User Authentication:** The system uses JWT for secure authentication, and the user onboarding process has been refined. New users receive an initial credit balance upon registration.
 
-1. Navigate to the backend directory:
-   ```
-   cd backend
-   ```
+**Deployment Steps:**
 
-2. Install dependencies:
-   ```
-   npm install --production
-   ```
+1.  **Prerequisites:**
+    *   Node.js (v18 or later recommended)
+    *   PostgreSQL server
+    *   Access to a Proxmox VE server with API credentials
 
-3. Edit the `.env` file to configure your environment variables.
+2.  **Backend Setup:**
+    *   Navigate to the `backend` directory.
+    *   Create a `.env` file based on `.env.example` and populate it with your Proxmox API details (URL, Token ID, Token Secret), database credentials, JWT secret, and any other relevant configurations.
+    *   Install dependencies: `npm install`
+    *   Initialize the database schema: `npm run db:init` (you might need to create this script based on your ORM or DB client)
+    *   Start the backend server: `npm start` or `npm run dev` for development.
 
-4. Start the backend server:
-   ```
-   npm start
-   ```
+3.  **Frontend Setup:**
+    *   Navigate to the `frontend` directory.
+    *   Install dependencies: `npm install`
+    *   Configure the API endpoint in your frontend code to point to the backend server (e.g., in `src/lib/apiClient.ts` or environment variables).
+    *   Start the frontend development server: `npm run dev`
+    *   Build for production: `npm run build`
 
-   For production use, it's recommended to use a process manager like PM2:
-   ```
-   npm install -g pm2
-   pm2 start src/index.js --name proxmox-paas-backend
-   ```
+**Important Notes:**
 
-## Frontend Deployment
+*   **Security:** Ensure that all API keys, secrets, and sensitive credentials in the `.env` file are kept secure and are not committed to version control. The provided API key for Proxmox is for testing purposes; replace it with a production key for a live environment.
+*   **Payment Gateway Integration:** The current payment gateway integrations are simulated. For real-world payment processing, you will need to sign up for developer accounts with the respective payment providers (PayPal, Crypto.com, etc.), obtain API keys, and replace the mock logic with their SDKs/APIs.
+*   **Error Handling & Logging:** The system includes basic error handling and logging. For production environments, consider implementing more robust logging and monitoring solutions.
 
-1. Navigate to the frontend directory:
-   ```
-   cd frontend
-   ```
-
-2. Install dependencies:
-   ```
-   npm install --production
-   ```
-
-3. Edit the `.env.production` file to configure your environment variables.
-
-4. Start the frontend server:
-   ```
-   npm start
-   ```
-
-   For production use, it's recommended to use a process manager like PM2:
-   ```
-   npm install -g pm2
-   pm2 start npm --name proxmox-paas-frontend -- start
-   ```
-
-## Database Setup
-
-Before starting the backend, you need to set up the PostgreSQL database:
-
-1. Create the database:
-   ```
-   createdb proxmox_paas
-   ```
-
-2. Run the database schema script:
-   ```
-   psql -d proxmox_paas -f backend/src/models/database.sql
-   ```
-
-## Vault Setup
-
-The system uses HashiCorp Vault for secure credential storage:
-
-1. Install Vault: https://www.vaultproject.io/downloads
-
-2. Initialize Vault:
-   ```
-   vault operator init
-   ```
-
-3. Unseal Vault:
-   ```
-   vault operator unseal
-   ```
-
-4. Create a token for the application:
-   ```
-   vault token create -policy=default
-   ```
-
-5. Update the `VAULT_TOKEN` in the backend `.env` file.
-
-## Proxmox Integration
-
-Ensure your Proxmox server is accessible from the backend server and that the API credentials in the `.env` file are correct.
-
-## Security Considerations
-
-1. Use HTTPS for both frontend and backend
-2. Set strong passwords for all services
-3. Regularly update all dependencies
-4. Implement proper firewall rules
-5. Set up regular backups
-
-## Monitoring
-
-The system includes built-in monitoring and alerting. Configure the email settings in the `.env` file to receive alerts.
+This enhanced Proxmox PaaS provides a solid foundation for managing virtualized resources with added cost control and user management features. Further customization and feature additions can be built upon this core system.

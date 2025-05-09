@@ -1,54 +1,72 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
+const helmet = require("helmet");
+const hpp = require("hpp");
+const passport = require("passport");
 
-const loadConfig = require('./src/config/vault');
+// Load environment variables
+dotenv.config();
 
-(async () => {
-  try {
-    // Load and apply Vault secrets to process.env
-    const config = await loadConfig();
-    Object.entries(config).forEach(([key, value]) => {
-      process.env[key] = value;
-    });
+// Database initialization
+const { initDb } = require("./config/database"); 
 
-    // Now safely use env variables
-    const app = express();
-    const port = process.env.PORT || 3001;
+// Import routes
+const authRoutes = require("./routes/auth");
+const nodeRoutes = require("./routes/nodes");
+const vmRoutes = require("./routes/vm");
+const lxcRoutes = require("./routes/lxc");
+const vncRoutes = require("./routes/vnc");
+const monitoringRoutes = require("./routes/monitoring");
+const paymentRoutes = require("./routes/payment"); // Added payment routes
+const userRoutes = require("./routes/user"); // Assuming user routes for credit info
 
-    // Middleware
-    app.use(cors({ origin: process.env.CORS_ORIGIN || "*" }));
-    app.use(express.json());
+const app = express();
 
-    // Import Routes
-    const nodeRoutes = require("./routes/nodes");
-    const vmRoutes = require("./routes/vms");
-    const vncRoutes = require("./routes/vnc");
-    const monitoringRoutes = require("./routes/monitoring");
+// Initialize Database Schema for Credits
+initDb().then(() => {
+  console.log("Database initialized successfully for credits and transactions.");
+}).catch(err => {
+  console.error("Failed to initialize database for credits:", err);
+  process.exit(1); // Exit if DB init fails
+});
 
-    // Health Check
-    app.get("/api/health", (req, res) => {
-      res.json({ status: "UP", timestamp: new Date().toISOString() });
-    });
 
-    // Mount Routes
-    app.use("/api/nodes", nodeRoutes);
-    app.use("/api/vms", vmRoutes);
-    app.use("/api/vnc", vncRoutes);
-    app.use("/api/monitoring", monitoringRoutes);
+// Middleware
+app.use(cors()); // Enable CORS for all routes
+app.use(helmet()); // Set security-related HTTP headers
+app.use(express.json()); // Parse JSON bodies
+app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
+app.use(hpp()); // Prevent HTTP Parameter Pollution
 
-    // Global Error Handler
-    app.use((err, req, res, next) => {
-      console.error(err.stack);
-      res.status(500).json({ success: false, message: "An internal server error occurred" });
-    });
+// Passport middleware for OAuth and JWT
+app.use(passport.initialize());
+require("./middleware/oauth"); // Configure OAuth strategy
+require("./middleware/auth"); // Configure JWT strategy (if it's done via passport.use)
 
-    app.listen(port, () => {
-      console.log(`[server]: Server is running at http://localhost:${port}`);
-    });
+// API Routes
+app.use("/api/auth", authRoutes);
+app.use("/api/nodes", nodeRoutes);
+app.use("/api/vms", vmRoutes);
+app.use("/api/lxc", lxcRoutes);
+app.use("/api/vnc", vncRoutes);
+app.use("/api/monitoring", monitoringRoutes);
+app.use("/api/payment", paymentRoutes); // Use payment routes
+app.use("/api/user", userRoutes); // Use user routes
 
-  } catch (err) {
-    console.error('❌ Failed to load config from Vault:', err);
-    process.exit(1);
-  }
-})();
+// Root Route for basic check
+app.get("/", (req, res) => {
+  res.send("Proxmox PaaS Backend is running!");
+});
+
+// Error Handling Middleware (should be last)
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send("Something broke!");
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+

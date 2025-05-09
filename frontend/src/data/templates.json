@@ -1,0 +1,132 @@
+[
+  {
+    "id": "networking-template",
+    "category": "Networking",
+    "name": "Secure Networking Fabric",
+    "description": "Establish secure access and service exposure with Cloudflare integration and robust internal networking.",
+    "icon": "🌐",
+    "use_case": "Exposing services securely, managing remote dev access, multi-tenant routing.",
+    "components": [
+      "Cloudflare Tunnel for secure public access",
+      "Cloudflare Zero Trust for identity-based access control",
+      "Load Balancer (e.g., HAProxy, NGINX)",
+      "VPN Gateway (e.g., WireGuard, OpenVPN)",
+      "Firewall Rules / NAT Policies"
+    ],
+    "details_link": "/templates/networking/secure-fabric"
+  },
+  {
+    "id": "vm-linux-workstation",
+    "category": "Virtual Machine",
+    "sub_category": "Linux Workstation",
+    "name": "Linux Developer Workstation",
+    "description": "A pre-configured Linux environment (e.g., Ubuntu) with Docker and common development tools.",
+    "icon": "💻",
+    "use_case": "Project-specific development, testing, running GUI applications.",
+    "components": [
+      "Ubuntu Desktop (or similar Linux GUI)",
+      "Docker Engine",
+      "Common Development Tools (VS Code, Git, etc.)"
+    ],
+    "default_config": {
+      "os_type": "linux_gui",
+      "cores": 2,
+      "memory_gb": 4,
+      "disk_gb": 50
+    },
+    "details_link": "/templates/vm/linux-workstation"
+  },
+  {
+    "id": "vm-windows-workstation",
+    "category": "Virtual Machine",
+    "sub_category": "Windows Workstation",
+    "name": "Windows Developer Workstation",
+    "description": "A Windows environment with tools like VS Code and WSL2 for development.",
+    "icon": "💻",
+    "use_case": "Windows-specific development, .NET projects, testing applications.",
+    "components": [
+      "Windows Desktop OS",
+      "Visual Studio Code",
+      "WSL2 (optional)"
+    ],
+    "default_config": {
+      "os_type": "windows_desktop",
+      "cores": 2,
+      "memory_gb": 8,
+      "disk_gb": 100
+    },
+    "details_link": "/templates/vm/windows-workstation"
+  },
+  {
+    "id": "vm-linux-server",
+    "category": "Virtual Machine",
+    "sub_category": "Linux Server",
+    "name": "Linux Application Server",
+    "description": "A minimal Linux server for hosting backends, databases, or other services.",
+    "icon": "🖥️",
+    "use_case": "Hosting API backends, database servers, web servers.",
+    "components": [
+      "Minimal Linux Server OS (e.g., Ubuntu Server)",
+      "SSH Access"
+    ],
+    "default_config": {
+      "os_type": "linux_server",
+      "cores": 1,
+      "memory_gb": 2,
+      "disk_gb": 20
+    },
+    "details_link": "/templates/vm/linux-server"
+  },
+  {
+    "id": "container-webapp-ghost",
+    "category": "Container Service",
+    "sub_category": "Premade Web Apps",
+    "name": "Ghost Blogging Platform",
+    "description": "Deploy a Ghost container for a modern publishing platform.",
+    "icon": "📝",
+    "use_case": "Quickly launching a blog or publication site.",
+    "components": [
+      "Ghost Docker Image"
+    ],
+    "default_config": {
+      "type": "lxc_application",
+      "image": "ghost:latest",
+      "ports": ["2368:2368"]
+    },
+    "details_link": "/templates/container/ghost"
+  },
+  {
+    "id": "container-db-postgres",
+    "category": "Container Service",
+    "sub_category": "Databases",
+    "name": "PostgreSQL Database Server",
+    "description": "Deploy a PostgreSQL container for your applications.",
+    "icon": "🐘",
+    "use_case": "Providing a relational database backend.",
+    "components": [
+      "PostgreSQL Docker Image"
+    ],
+    "default_config": {
+      "type": "lxc_database",
+      "image": "postgres:latest",
+      "ports": ["5432:5432"],
+      "volumes": ["/var/lib/postgresql/data"]
+    },
+    "details_link": "/templates/container/postgres"
+  },
+  {
+    "id": "cluster-k3s",
+    "category": "Cluster",
+    "sub_category": "Lightweight Kubernetes",
+    "name": "K3s Lightweight Kubernetes Cluster",
+    "description": "Deploy a K3s cluster for edge or development Kubernetes workloads.",
+    "icon": "☸️",
+    "use_case": "Running containerized applications in a lightweight Kubernetes environment.",
+    "components": [
+      "K3s Server Node(s)",
+      "K3s Agent Node(s) (optional)"
+    ],
+    "details_link": "/templates/cluster/k3s"
+  }
+]
+
